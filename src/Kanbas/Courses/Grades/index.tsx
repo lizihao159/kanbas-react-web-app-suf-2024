@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import * as db from "../../Database";
 
@@ -17,7 +16,7 @@ export default function Grades() {
   const courseAssignments = db.assignments.filter((assignment) => assignment.course === cid);
 
   // Get grades for the current course's assignments
-  const getStudentGrades = (studentId, assignmentId) => {
+  const getStudentGrades = (studentId: string, assignmentId: string) => {
     const gradeRecord = db.grades.find(
       (grade) => grade.student === studentId && grade.assignment === assignmentId
     );
@@ -38,10 +37,10 @@ export default function Grades() {
         </thead>
         <tbody>
           {enrolledStudents.map((student) => (
-            <tr key={student._id}>
-              <td>{`${student.firstName} ${student.lastName}`}</td>
+            <tr key={student?._id}>
+              <td>{`${student?.firstName} ${student?.lastName}`}</td>
               {courseAssignments.map((assignment) => (
-                <td key={assignment._id}>{getStudentGrades(student._id, assignment._id)}</td>
+                <td key={assignment._id}>{getStudentGrades(student?._id ?? '', assignment._id ?? '')}</td>
               ))}
             </tr>
           ))}

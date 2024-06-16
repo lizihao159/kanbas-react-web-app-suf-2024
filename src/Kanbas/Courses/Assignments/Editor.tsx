@@ -1,28 +1,60 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as db from '../../Database'; // Adjust the path as necessary
 
+interface Assignment {
+    _id: string;
+    title: string;
+    description: string;
+    points: number;
+    dueDate: string;
+    availableFrom?: string;
+    availableUntil?: string;
+    course: string;
+}
+
+interface AssignmentState {
+    title: string;
+    description: string;
+    points: number;
+    dueDate: string;
+    availableFrom?: string;
+    availableUntil?: string;
+    submissionType: string;
+    assignTo: string;
+    group: string;
+    displayGradeAs: string;
+}
+
 export default function AssignmentEditor() {
-    const { assignmentId, cid: courseId } = useParams();
-    const [assignment, setAssignment] = useState({
+    const { assignmentId, cid: courseId } = useParams<{ assignmentId: string; cid: string }>();
+    const [assignment, setAssignment] = useState<AssignmentState>({
         title: '',
         description: '',
-        points: '',
+        points: 0,
         dueDate: '',
         availableFrom: '',
         availableUntil: '',
         submissionType: 'online',
-        assignTo: 'Everyone'
+        assignTo: 'Everyone',
+        group: 'assignments',
+        displayGradeAs: 'points'
     });
 
     useEffect(() => {
-        const currentAssignment = db.assignments.find(a => a._id === assignmentId);
+        const currentAssignment = db.assignments.find(a => a._id === assignmentId) as Assignment;
         if (currentAssignment) {
             setAssignment({
-                ...currentAssignment,
+                title: currentAssignment.title,
+                description: currentAssignment.description,
+                points: currentAssignment.points,
                 dueDate: formatDate(currentAssignment.dueDate, true),
                 availableFrom: formatDate(currentAssignment.availableFrom),
-                availableUntil: formatDate(currentAssignment.availableUntil)
+                availableUntil: formatDate(currentAssignment.availableUntil),
+                submissionType: 'online',
+                assignTo: 'Everyone',
+                group: 'assignments',
+                displayGradeAs: 'points'
             });
         }
     }, [assignmentId]);
@@ -31,7 +63,7 @@ export default function AssignmentEditor() {
         return <div>Loading...</div>;
     }
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setAssignment(prevAssignment => ({
             ...prevAssignment,
@@ -39,24 +71,22 @@ export default function AssignmentEditor() {
         }));
     };
 
-    const handleSubmissionTypeChange = (e) => {
+    const handleSubmissionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setAssignment(prevAssignment => ({
             ...prevAssignment,
             submissionType: e.target.value
         }));
     };
 
-    const formatDate = (date, isDueDate = false) => {
+    const formatDate = (date?: string, isDueDate = false): string => {
         if (!date) return '';
         const d = new Date(date);
         if (isDueDate) {
             d.setHours(23, 59, 0, 0);
         }
-        const localISOTime = d.toISOString().slice(0, 16);
-        if (isDueDate && localISOTime.endsWith("00:00")) {
-            return localISOTime.replace("00:00", "23:59");
-        }
-        return localISOTime;
+        const offset = d.getTimezoneOffset();
+        const localTime = new Date(d.getTime() - (offset * 60 * 1000));
+        return localTime.toISOString().slice(0, 16);
     };
 
     return (
@@ -87,7 +117,7 @@ export default function AssignmentEditor() {
                 <div className="row mb-3">
                     <label htmlFor="wd-group" className="col-sm-2 col-form-label">Group</label>
                     <div className="col-sm-10">
-                        <select id="wd-group" name="group" className="form-control" value={assignment.group || 'assignments'} onChange={handleInputChange}>
+                        <select id="wd-group" name="group" className="form-control" value={assignment.group} onChange={handleInputChange}>
                             <option value="assignments">Assignments</option>
                             <option value="quizzes">Quizzes</option>
                             <option value="projects">Projects</option>
@@ -98,7 +128,7 @@ export default function AssignmentEditor() {
                 <div className="row mb-3">
                     <label htmlFor="wd-display-grade-as" className="col-sm-2 col-form-label">Display Grade As</label>
                     <div className="col-sm-10">
-                        <select id="wd-display-grade-as" name="displayGradeAs" className="form-control" value={assignment.displayGradeAs || 'points'} onChange={handleInputChange}>
+                        <select id="wd-display-grade-as" name="displayGradeAs" className="form-control" value={assignment.displayGradeAs} onChange={handleInputChange}>
                             <option value="points">Points</option>
                             <option value="percentage">Percentage</option>
                             <option value="letter">Letter Grade</option>
