@@ -1,0 +1,42 @@
+.input-group-text {
+    background-color: #f1f1f1;
+  }
+  
+  .btn-danger {
+    background-color: #d9534f;
+    border: none;
+  }
+  
+  .list-group-item {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+  
+  .assignment-item {
+    position: relative;
+    padding-left: 20px; 
+  }
+  
+  .assignment-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: green;
+  }
+  
+  .assignment-item h5 {
+    margin: 0;
+  }
+  
+  .assignment-item p {
+    margin: 0;
+  }
+  
+  .assignment-actions button {
+    margin-right: 10px;
+  }
+  
