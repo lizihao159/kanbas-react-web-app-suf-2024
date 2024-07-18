@@ -1,95 +1,79 @@
-import React, { useState, ChangeEvent } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { GoSearch } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
-import { deleteAssignment } from "./assignmentsReducer";
+// src/Kanbas/Courses/Assignments/index.tsx
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
+import { fetchAssignmentsForCourse, deleteAssignment as deleteAssignmentClient } from './client';
+import { setAssignments, deleteAssignment as deleteAssignmentReducer } from './assignmentsReducer';
 import './index.css';
 
 interface RootState {
   assignmentsReducer: {
-    assignments: Array<Assignment>;
+    assignments: Array<any>;
   };
 }
 
-interface Assignment {
-  course: string;
-  title: string;
-  _id: string;
-  description: string;
-  points: number;
-  dueDate: string;
-  availableFrom: string;
-  availableUntil: string;
-  editing: boolean;
-}
-
-interface AssignmentsProps {
-  courseId: string;
-}
-
-const Assignments: React.FC<AssignmentsProps> = ({ courseId }) => {
-  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+const Assignments = ({ courseId }: { courseId: string }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments);
+  const [search, setSearch] = useState('');
 
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      const assignments = await fetchAssignmentsForCourse(courseId);
+      dispatch(setAssignments(assignments));
+    };
+
+    fetchAssignments();
+  }, [dispatch, courseId]);
+
+  const handleDelete = async (id: string) => {
+    await deleteAssignmentClient(id);
+    dispatch(deleteAssignmentReducer(id));
   };
 
-  const handleAddAssignment = () => {
+  const handleEdit = (id: string) => {
+    navigate(`/Kanbas/Courses/${courseId}/Assignments/${id}`);
+  };
+
+  const handleAddNew = () => {
     navigate(`/Kanbas/Courses/${courseId}/Assignments/new`);
   };
 
-  const handleEditAssignment = (assignment: Assignment) => {
-    navigate(`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`);
-  };
-
-  const filteredAssignments = assignments.filter(
-    (assignment: Assignment) => assignment.course === courseId && assignment.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAssignments = assignments.filter((assignment: any) =>
+    assignment.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div>
-      <div className="row mb-3">
-        <div className="col-3">
-          <div className="input-group">
-            <span className="input-group-text wd-input-logo wd-input-group-search-assignment" id="assignment-search-icon">
-              <GoSearch />
-            </span>
-            <input
-              type="text"
-              className="form-control wd-input-textbar"
-              placeholder="Search for Assignment"
-              aria-label="Search for assignment"
-              aria-describedby="assignment-search-icon"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              id="search-assignment"
-              name="search-assignment"
-            />
-          </div>
-        </div>
-        <div className="col-3">
-          <button className="btn btn-danger" onClick={handleAddAssignment}>+ Assignment</button>
-        </div>
-        <div className="col"></div>
-      </div>
+    <div className="assignments-container">
       <div className="assignments-header">
-        <h4 className="me-3 wd-assignments-section-title">Assignments</h4>
+        <input
+          type="text"
+          placeholder="Search for Assignment"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+        <div className="buttons-container">
+          <button className="group-button">+Group</button>
+          <button onClick={handleAddNew} className="assignment-button">+ Assignment</button>
+        </div>
       </div>
-      <div className="list-group">
-        {filteredAssignments.map((assignment: Assignment) => (
-          <div key={assignment._id} className="list-group-item assignment-item wd-assignment-list-item">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <h5>{assignment.title}</h5>
-                <p className="text-muted">Due {new Date(assignment.dueDate).toLocaleDateString()} at {new Date(assignment.dueDate).toLocaleTimeString()} | {assignment.points} pts</p>
-              </div>
-              <div className="assignment-actions">
-                <button onClick={() => handleEditAssignment(assignment)} className="btn btn-link">Edit</button>
-                <button onClick={() => dispatch(deleteAssignment(assignment._id))} className="btn btn-link text-danger">Delete</button>
-              </div>
+      <div className="assignments-title-container">
+        <h2 className="assignments-title">ASSIGNMENTS</h2>
+      </div>
+      <div className="assignments-list">
+        {filteredAssignments.map((assignment: any) => (
+          <div className="assignment-item" key={assignment._id}>
+            <div className="assignment-title">{assignment.title}</div>
+            <div className="assignment-details">
+              <span>{assignment.description}</span>
+              <span>Due: {assignment.dueDate}</span>
+              <span>{assignment.points} pts</span>
+            </div>
+            <div className="assignment-actions">
+              <button className="edit-button" onClick={() => handleEdit(assignment._id)}>Edit</button>
+              <button className="delete-button" onClick={() => handleDelete(assignment._id)}>Delete</button>
             </div>
           </div>
         ))}

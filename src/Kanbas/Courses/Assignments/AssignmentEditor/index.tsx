@@ -1,7 +1,9 @@
+// src/Kanbas/Courses/Assignments/AssignmentEditor/index.tsx
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateAssignment, addAssignment } from '../assignmentsReducer';
+import { createAssignment, updateAssignment as updateAssignmentClient } from '../client';
 import './AssignmentEditor.css';
 
 interface RootState {
@@ -28,7 +30,7 @@ interface AssignmentEditorProps {
 
 const AssignmentEditor: React.FC<AssignmentEditorProps> = ({ courseId }) => {
   const { assignmentId } = useParams<{ assignmentId: string }>();
-  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+  const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -48,11 +50,13 @@ const AssignmentEditor: React.FC<AssignmentEditorProps> = ({ courseId }) => {
     return <div>Assignment not found</div>;
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedAssignment = { ...assignment, title, description, points, dueDate, availableFrom, availableUntil };
     if (isNew) {
-      dispatch(addAssignment({ ...updatedAssignment, _id: Date.now().toString() }));
+      const newAssignment = await createAssignment(courseId, updatedAssignment);
+      dispatch(addAssignment(newAssignment));
     } else {
+      await updateAssignmentClient(updatedAssignment);
       dispatch(updateAssignment(updatedAssignment));
     }
     navigate(`/Kanbas/Courses/${courseId}/Assignments`);
@@ -65,7 +69,7 @@ const AssignmentEditor: React.FC<AssignmentEditorProps> = ({ courseId }) => {
   return (
     <div className="assignment-editor-container">
       <div className="form-group">
-        <label>Assignment Name</label>
+        <label>Assignment Title</label>
         <input type="text" className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} />
       </div>
       <div className="form-group">

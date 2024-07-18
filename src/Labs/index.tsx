@@ -6,11 +6,12 @@ import store from "./store";
 import { Provider } from "react-redux";
 import { Route, Routes, Navigate } from "react-router-dom";
 import TOC from "./Toc";
+import Lab5 from "./Lab5";
 
 export default function Labs() {
     return (
         <Provider store={store}>
-        <div>
+        <div className="container-fluid">
             <h1>Welcome to Web Dev</h1>
             <h2>Zihao Li</h2>
             <h3>CS5610 section: 2024 summer online 52323</h3>
@@ -21,6 +22,7 @@ export default function Labs() {
             <Route path="Lab2" element={<Lab2 />} />
             <Route path="Lab3/*" element={<Lab3 />} />
             <Route path="Lab4/*" element={<Lab4 />} />
+            <Route path="Lab5/*" element={<Lab5 />} />
         </Routes>
         </div>
         </Provider>
