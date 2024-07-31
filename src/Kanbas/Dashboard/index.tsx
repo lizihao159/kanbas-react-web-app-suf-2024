@@ -1,18 +1,22 @@
 import { Link } from "react-router-dom";
-export default function Dashboard(
-  { courses,
-     course,
-      setCourse,
-       addNewCourse,
-    deleteCourse, 
-    updateCourse 
-  }: {
-    courses: any[]; course: any; setCourse: (course: any) => void;
-    addNewCourse: () => void; deleteCourse: (course: any) => void;
-    updateCourse: () => void; 
-  }){  
+
+export default function Dashboard({
+  courses,
+  course,
+  setCourse,
+  addNewCourse,
+  deleteCourse,
+  updateCourse,
+}: {
+  courses: any[];
+  course: any;
+  setCourse: (course: any) => void;
+  addNewCourse: () => void;
+  deleteCourse: (course: any) => void;
+  updateCourse: () => void;
+}) {
   return (
-    <div id="wd-dashboard">
+    <div className="p-4" id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
       <h5>
         New Course
@@ -48,16 +52,16 @@ export default function Dashboard(
         Published Courses ({courses.length})
       </h2>{" "}
       <hr />
-      <div id="wd-dashboard-courses" className="row">
+      <div className="row" id="wd-dashboard-courses">
         <div className="row row-cols-1 row-cols-md-5 g-4">
           {courses.map((course) => (
             <div className="wd-dashboard-course col" style={{ width: "300px" }}>
               <Link
-                to={`/Kanbas/Courses/${course._id}/Home`}
+                to={`/Kanbas/Courses/${course.number}/Home`}
                 className="text-decoration-none"
               >
                 <div className="card rounded-3 overflow-hidden">
-                  <img src="/images/reactjs.jpg" height="{160}" />
+                  <img src="/images/reactjs.jpg" height="{160}" alt="" />
                   <div className="card-body">
                     <span
                       className="wd-dashboard-course-link"
@@ -76,11 +80,12 @@ export default function Dashboard(
                       {course.description}
                     </p>
                     <Link
-                      to={`/Kanbas/Courses/${course._id}/Home`}
+                      to={`/Kanbas/Courses/${course.number}/Home`}
                       className="btn btn-primary"
                     >
                       Go
                     </Link>
+
                     <button
                       onClick={(event) => {
                         event.preventDefault();
@@ -91,6 +96,7 @@ export default function Dashboard(
                     >
                       Delete
                     </button>
+
                     <button
                       id="wd-edit-course-click"
                       onClick={(event) => {

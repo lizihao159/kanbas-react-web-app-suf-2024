@@ -4,7 +4,7 @@ import { Link, useParams, useLocation } from "react-router-dom";
 export default function CoursesNavigation() {
    const { cid } = useParams(); 
    const { pathname } = useLocation();
-   const links = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades"];
+   const links = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades", "People"];
     return (
       <div id="wd-courses-navigation" className="list-group rounded-0">
          {links.map((link) => (
