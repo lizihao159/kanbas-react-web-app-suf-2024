@@ -1,0 +1,8 @@
+#wd-quiz-editor-tag.list-group-horizontal {
+    display: flex;
+    flex-direction: row;
+  }
+
+  #wd-quiz-editor-tag .list-group-item {
+    margin-right: 0; /* Adjust spacing between items as needed */
+  }
